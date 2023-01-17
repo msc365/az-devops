@@ -11,6 +11,11 @@ This function can be used to update team settings in Azure DevOps. I created thi
 - Version : 1.230118.0-beta
 - Dependencies : [az cli](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli), [az devops extension](https://learn.microsoft.com/en-us/cli/azure/devops?view=azure-cli-latest)
 
+<br>
+<a href="../assets/img/posts-az-devops-boards-team-configuration.png" target="_blank"><img alt="settings-json" src="../assets/img/posts-az-devops-boards-team-configuration.png" width="1024"/></a>  
+
+<small>Team settings sample</small>
+
 ## Parameters
 
 | Name | Description |
