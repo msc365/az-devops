@@ -85,6 +85,10 @@ This function can be used to update team settings in Azure DevOps. I created thi
 
 4. That's it, check your updates on Azure DevOps.
 
+## Azure Pipelines
+
+This sample script is executed on a local device, but you could also use this script in an Azure Pipeline as I did for a self-service DevOps organization.
+
 ## Disclaimer
 
 THIS CODE IS SAMPLE CODE. THESE SAMPLES ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
