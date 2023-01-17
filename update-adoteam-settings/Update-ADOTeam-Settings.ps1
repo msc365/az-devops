@@ -17,7 +17,7 @@
 .EXAMPLE
     .\Update-ADOTeam-Settings.ps1 `
         -Organization $env:MSC365_ORGANIZATION -ProjectName $env:MSC365_PROJECT_NAME `
-        -TeamName $env:MSC365_TEAM_NAME
+        -TeamName $env:MSC365_TEAM_NAME -TeamSettings $settingsJson -Verbose
 
     The following local/pipeline variables must be set as part of the solution:
 
