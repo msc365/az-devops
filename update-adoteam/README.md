@@ -8,10 +8,18 @@ This function can be used to update team settings in Azure DevOps. I created thi
 
 - Script name : Update-ADOTeam-Settings.ps1
 - Authors : Martin Swinkels, DevOps Engineer at MSc365.eu
-- Version : 1.230118.0-beta
+- Version : 1.230125.0-beta
 - Dependencies : [az cli](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli), [az devops extension](https://learn.microsoft.com/en-us/cli/azure/devops?view=azure-cli-latest)
 
+## Changelog
+
+| Version | Description |
+| :-- | :-- |
+| 1.230118.0-beta | Initial release |
+| 1.230125.0-beta | Added YAML Pipeline, Error handling improvements |
+
 <br>
+
 <a href="../assets/img/posts-az-devops-boards-team-configuration.png" target="_blank"><img alt="settings-json" src="../assets/img/posts-az-devops-boards-team-configuration.png" width="1024"/></a>  
 
 <small>Team settings sample</small>
@@ -73,7 +81,6 @@ This function can be used to update team settings in Azure DevOps. I created thi
     # Make sure you have set a PAT in Azure DevOps with sufficient permissions.
     $env:MSC365_PAT = "{YOUR PAT GOES HERE}"
     $env:AZURE_DEVOPS_EXT_PAT = $env:MSC365_PAT
-    $env:AZURE_DEVOPS_EXT_GIT_SOURCE_PASSWORD_OR_PAT = $env:MSC365_PAT
     ```
 
 3. Run the following command and set `$settingsJson` as argument for the `-TeamSettings` parameter.
@@ -92,7 +99,39 @@ This function can be used to update team settings in Azure DevOps. I created thi
 
 ## Azure Pipelines
 
-This sample script is executed on a local device, but you could also use this script in an Azure Pipeline as I did for a self-service DevOps organization.
+This sample script is executed on a local device, but you could also use this script in an Azure Pipeline as I did for a self-service DevOps organization, see the sample `YAML` file below.
+
+```yaml
+trigger: none
+name: $(Date:yyyyMMdd)$(Rev:.r) • Update '$(MSC365_TEAM_NAME)' Configuration
+appendCommitMessageToRunName: false
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Release
+  jobs:
+  - job: Release
+    displayName: 'Update Team Config'
+    steps:
+    - task: PowerShell@2
+      displayName: 'PowerShell Script'
+      inputs:
+        targetType: filePath
+        filePath: '$(System.DefaultWorkingDirectory)/azcli-update-adoteam/Update-ADOTeam.ps1'
+        arguments: '-Organization ${env:MSC365_ORGANIZATION} -ProjectName ${env:MSC365_PROJECT_NAME} -TeamName ${env:MSC365_TEAM_NAME} -TeamSettings ${env:MSC365_TEAM_SETTINGS_JSON} -Verbose'
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(MSC365_PAT)
+```
+
+> **Note**: Mention the `appendCommitMessageToRunName` YAML property, which I used to create a custum name for a pipeline. This property will disable showing the last commit message for a pipeline run.
+
+<a href="../assets/img/posts-az-devops-update-adoteam-pipeline.png" target="_blank"><img alt="settings-json" src="../assets/img/posts-az-devops-update-adoteam-pipeline.png" width="1024"/></a>  
+
+<small>Pipeline name sample</small>
+
+<br>
 
 ## Disclaimer
 
