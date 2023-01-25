@@ -1,4 +1,4 @@
-# Update-ADOTeam-Settings
+# Update-ADOTeam
 
 This function can be used to update team settings in Azure DevOps. I created this function as part of a self-service solution on Azure DevOps, to meet organizational governance requirements, while users are creating new DevOps projects and teams.
 
@@ -79,7 +79,7 @@ This function can be used to update team settings in Azure DevOps. I created thi
 3. Run the following command and set `$settingsJson` as argument for the `-TeamSettings` parameter.
 
     ```powershell
-    .\Update-ADOTeam-Settings.ps1 `
+    .\Update-ADOTeam.ps1 `
         -Organization $env:MSC365_ORGANIZATION -ProjectName $env:MSC365_PROJECT_NAME `
         -TeamName $env:MSC365_TEAM_NAME -TeamSettings $settingsJson -Verbose
     ```

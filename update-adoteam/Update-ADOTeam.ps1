@@ -15,7 +15,7 @@
     The API version to use with the Invoke end point; default 7.1-preview.
 
 .EXAMPLE
-    .\Update-ADOTeam-Settings.ps1 `
+    .\Update-ADOTeam.ps1 `
         -Organization $env:MSC365_ORGANIZATION -ProjectName $env:MSC365_PROJECT_NAME `
         -TeamName $env:MSC365_TEAM_NAME -TeamSettings $settingsJson -Verbose
 
