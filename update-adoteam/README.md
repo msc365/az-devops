@@ -131,7 +131,7 @@ stages:
 
 <br>
 
-> **Note**: Mention the `appendCommitMessageToRunName` YAML property, which I used to create a custum name for this pipeline. This property will [disable showing the last commit message for a pipeline run](https://learn.microsoft.com/en-us/azure/devops/release-notes/2022/sprint-209-update?tabs=yaml#disable-showing-the-last-commit-message-for-a-pipeline-run).
+> **Note**: Notice the `appendCommitMessageToRunName` YAML property, which I used to create a custum name for this pipeline. This property will [disable showing the last commit message for a pipeline run](https://learn.microsoft.com/en-us/azure/devops/release-notes/2022/sprint-209-update?tabs=yaml#disable-showing-the-last-commit-message-for-a-pipeline-run).
 
 In this scenario, I wanted a user-friendly description that makes it clear that the pipeline is part of an automation process and that the team settings are updated. The '_latest commit_' message would only confuse users when troubleshooting the process.
 
