@@ -15,7 +15,7 @@
     The API version to use with the Invoke end point; default 7.1-preview.
 
 .EXAMPLE
-    .\Update-ADOTeam-Settings.ps1 `
+    .\Update-ADOTeam.ps1 `
         -Organization $env:MSC365_ORGANIZATION -ProjectName $env:MSC365_PROJECT_NAME `
         -TeamName $env:MSC365_TEAM_NAME -TeamSettings $settingsJson -Verbose
 
@@ -30,15 +30,15 @@
     The following local/pipeline task environment variables must be set as part of the solution:
 
     $env:AZURE_DEVOPS_EXT_PAT = $env:MSC365_PAT
-    $env:AZURE_DEVOPS_EXT_GIT_SOURCE_PASSWORD_OR_PAT = $env:MSC365_PAT
 -----------------------------------------------------------------------------------------------------------------------------------
 Script name : Update-DevOpsTeamSettings.ps1
 Authors : Martin Swinkels (DevOps Engineer, MSc365.eu Netherlands)
-Version : 1.230118.0-beta
+Version : 1.230125.0-beta
 Dependencies : az cli, az devops cli
 -----------------------------------------------------------------------------------------------------------------------------------
 Version Changes:
-Date:       Version: Changed By:     Info:
+Date:       Version:         Changed By:      Info:
+2023-01-25  1.230125.0-beta  Martin Swinkels  Renamed file name, fixed verbose and improved error handling.
 -----------------------------------------------------------------------------------------------------------------------------------
 DISCLAIMER
    THIS CODE IS SAMPLE CODE. THESE SAMPLES ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
@@ -86,18 +86,18 @@ if (${env:SYSTEM_DEBUG} -eq 'true') {
     # Get-ChildItem -Path env: | Format-Table | Write-Output
 }
 
-$fn = "$($PSCmdlet.MyInvocation.MyCommand.Name)"
-$st = Get-Date
-
-Write-Verbose @"
-    `r`n  Function...........: $fn
-    `r  Started at ........: $($st.ToString('yyyy-MM-dd hh:mm:ss tt'))
-    `r  VerbosePreference..: $VerbosePreference
-    `r  DebugPreference....: $DebugPreference
-    `r  WarningPreference..: $WarningPreference
-"@
-
 try {
+
+    $fn = "$($PSCmdlet.MyInvocation.MyCommand.Name)"
+    $st = Get-Date
+    
+    Write-Verbose @"
+        `r`n  Function...........: $fn
+        `r  Started at ........: $($st.ToString('yyyy-MM-dd hh:mm:ss tt'))
+        `r  VerbosePreference..: $VerbosePreference
+        `r  DebugPreference....: $DebugPreference
+        `r  WarningPreference..: $WarningPreference
+"@
 
     $validJson = "$($TeamSettings)" | Test-Json
 
@@ -119,73 +119,82 @@ try {
     # https://learn.microsoft.com/en-us/cli/azure/devops/project?view=azure-cli-latest#az-devops-project-show
     
     $project = az devops project show --project $ProjectName | ConvertFrom-Json
-    Write-Verbose "`r`n  Found project successfully."
-    Write-Debug ("`r`n  project: {0}" -f ($project | ConvertTo-Json -Depth 99))
 
     if (-not $null -eq $project) {
-       
+
+        Write-Verbose "`r`n  Found project successfully."
+        Write-Debug ("`r`n  project: {0}" -f ($project | ConvertTo-Json -Depth 99))
+
         $team = az devops team show --team $TeamName | ConvertFrom-Json
-        Write-Verbose "`r`n  Found team successfully."
-        Write-Debug ("`r`n  team: {0}" -f ($team | ConvertTo-Json -Depth 99))
-        
-        # Get team settings with az devops invoke
-        # https://learn.microsoft.com/en-us/cli/azure/devops?view=azure-cli-latest#az-devops-invoke
 
-        $settings = az devops invoke `
-            --area work `
-            --resource teamsettings `
-            --route-parameters `
-                project="$($project.id)" `
-                team="$($team.id)" `
-            --http-method GET `
-            --api-version $ApiVersion `
-            --output json | ConvertFrom-Json
-        
-        Write-Verbose "`r`n  Found current team settings successfully."
-        Write-Debug ("`r`n  current teamsettings: {0}" -f ($settings | ConvertTo-Json -Depth 99))
+        if(-not $null -eq $team) {
 
-        $infile = "body.json"
-        Set-Content -Path $infile -Value $TeamSettings
+            Write-Verbose "`r`n  Found team successfully."
+            Write-Debug ("`r`n  team: {0}" -f ($team | ConvertTo-Json -Depth 99))
+            
+            # Get team settings with az devops invoke
+            # https://learn.microsoft.com/en-us/cli/azure/devops?view=azure-cli-latest#az-devops-invoke
 
-        $newSettings = az devops invoke `
-            --area work `
-            --resource teamsettings `
-            --route-parameters `
-                project="$($project.id)" `
-                team="$($team.id)" `
-            --http-method PATCH `
-            --in-file $infile `
-            --api-version $ApiVersion `
-            --output json | ConvertFrom-Json
+            $settings = az devops invoke `
+                --area work `
+                --resource teamsettings `
+                --route-parameters `
+                    project="$($project.id)" `
+                    team="$($team.id)" `
+                --http-method GET `
+                --api-version $ApiVersion `
+                --output json | ConvertFrom-Json
+            
+            if (-not $null -eq $settings) {
 
-        Remove-Item $infile -Force
+                Write-Verbose "`r`n  Found current team settings successfully."
+                Write-Debug ("`r`n  current teamsettings: {0}" -f ($settings | ConvertTo-Json -Depth 99))
 
-        Write-Verbose "`r`n  Updated team settings successfully."
-        Write-Debug ("`r`n  updated teamsettings: {0}" -f ($newSettings | ConvertTo-Json -Depth 99))      
-    
-        Write-Output -InputObject ($newSettings | ConvertTo-Json -Depth 99)
-    }
+                $infile = "body.json"
+                Set-Content -Path $infile -Value $TeamSettings
 
-    $et = Get-Date
-    $rt = $et - $st  # Run Time
- 
-    # Format the output time
-    if ($rt.TotalSeconds -lt 1) {
-        $elapsed = "$($rt.TotalMilliseconds.ToString('#,0.0000')) Milliseconds"
-    }
-    elseif ($rt.TotalSeconds -gt 60) {
-        $elapsed = "$($rt.TotalMinutes.ToString('#,0.0000')) Minutes"
-    }
-    else { 
-        $elapsed = "$($rt.TotalSeconds.ToString('#,0.0000')) Seconds" 
-    }
- 
-    Write-Verbose @"
-        `r`n  Function...........: $fn
-        `r  Finished at .......: $($et.ToString('yyyy-MM-dd hh:mm:ss tt'))
-        `r  Elapsed time ......: $elapsed
+                $newSettings = az devops invoke `
+                    --area work `
+                    --resource teamsettings `
+                    --route-parameters `
+                        project="$($project.id)" `
+                        team="$($team.id)" `
+                    --http-method PATCH `
+                    --in-file $infile `
+                    --api-version $ApiVersion `
+                    --output json | ConvertFrom-Json
+
+                Remove-Item $infile -Force
+
+                if (-not $null -eq $newSettings) {
+                    Write-Verbose "`r`n  Updated team settings successfully."
+                    Write-Debug ("`r`n  updated teamsettings: {0}" -f ($newSettings | ConvertTo-Json -Depth 99))      
+
+                    $et = Get-Date
+                    $rt = $et - $st  # Run Time
+                 
+                    # Format the output time
+                    if ($rt.TotalSeconds -lt 1) {
+                        $elapsed = "$($rt.TotalMilliseconds.ToString('#,0.0000')) Milliseconds"
+                    }
+                    elseif ($rt.TotalSeconds -gt 60) {
+                        $elapsed = "$($rt.TotalMinutes.ToString('#,0.0000')) Minutes"
+                    }
+                    else { 
+                        $elapsed = "$($rt.TotalSeconds.ToString('#,0.0000')) Seconds" 
+                    }
+                 
+                    Write-Verbose @"
+                        `r`n  Function...........: $fn
+                        `r  Finished at .......: $($et.ToString('yyyy-MM-dd hh:mm:ss tt'))
+                        `r  Elapsed time ......: $elapsed
 "@ 
 
+                    Write-Output -InputObject ($newSettings | ConvertTo-Json -Depth 99)
+                }
+            }
+        }
+    }
 }
 catch {
     Write-Verbose $_.Exception.Message
