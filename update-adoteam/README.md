@@ -125,7 +125,13 @@ stages:
         AZURE_DEVOPS_EXT_PAT: $(MSC365_PAT)
 ```
 
-> **Note**: Mention the `appendCommitMessageToRunName` YAML property, which I used to create a custum name for a pipeline. This property will disable showing the last commit message for a pipeline run.
+<br>
+
+> **Note**: Mention the `appendCommitMessageToRunName` YAML property, which I used to create a custum name for this pipeline. This property will [disable showing the last commit message for a pipeline run](https://learn.microsoft.com/en-us/azure/devops/release-notes/2022/sprint-209-update?tabs=yaml#disable-showing-the-last-commit-message-for-a-pipeline-run).
+
+In this scenario, I wanted a user-friendly description that makes it clear that the pipeline is part of an automation process and that the team settings are updated. The '_latest commit_' message would only confuse users when troubleshooting the process.
+
+<br>
 
 <a href="../assets/img/posts-az-devops-update-adoteam-pipeline.png" target="_blank"><img alt="settings-json" src="../assets/img/posts-az-devops-update-adoteam-pipeline.png" width="1024"/></a>  
 
