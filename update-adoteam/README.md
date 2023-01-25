@@ -120,7 +120,11 @@ stages:
       inputs:
         targetType: filePath
         filePath: '$(System.DefaultWorkingDirectory)/azcli-update-adoteam/Update-ADOTeam.ps1'
-        arguments: '-Organization ${env:MSC365_ORGANIZATION} -ProjectName ${env:MSC365_PROJECT_NAME} -TeamName ${env:MSC365_TEAM_NAME} -TeamSettings ${env:MSC365_TEAM_SETTINGS_JSON} -Verbose'
+        arguments: '-Organization ${env:MSC365_ORGANIZATION} 
+                    -ProjectName ${env:MSC365_PROJECT_NAME} 
+                    -TeamName ${env:MSC365_TEAM_NAME} 
+                    -TeamSettings ${env:MSC365_TEAM_SETTINGS_JSON} 
+                    -Verbose'
       env:
         AZURE_DEVOPS_EXT_PAT: $(MSC365_PAT)
 ```
